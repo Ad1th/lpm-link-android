@@ -181,6 +181,7 @@ class TerminalViewModel @Inject constructor(
 
     private fun handleControl(msg: kotlinx.serialization.json.JsonObject) {
         val ownerObj = msg["owner"]?.jsonObject
+        Log.d(TAG, "handleControl: $ownerObj")
         val owner = if (ownerObj != null) {
             try { json.decodeFromJsonElement<ControlOwner>(ownerObj) } catch (_: Exception) { null }
         } else null
