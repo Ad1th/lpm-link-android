@@ -224,7 +224,14 @@
   };
   window.lpmSeed = b64 => {
     lastOutputAt = performance.now();
-    try { term.reset(); term.write(b64ToBytes(b64)); refit(); } catch (e) { console.error('lpmSeed error:', e); }
+    console.log('[lpm] lpmSeed called', { len: b64?.length });
+    try {
+      term.reset();
+      term.write(b64ToBytes(b64));
+      refit();
+    } catch (e) {
+      console.error('[lpm] lpmSeed error:', e);
+    }
   };
 
   // Font size / theme, pushed from Swift (Settings → Terminal). Changing the font
