@@ -6,6 +6,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -211,6 +212,7 @@ fun TerminalScreen(
                     .weight(1f)
                     .fillMaxWidth()
                     .background(Color(0xFF1E1E1E)) // Dark grey background for the container
+                    .border(1.dp, Color.Red.copy(alpha = 0.3f))
             ) {
                 AndroidView(
                     factory = { webView },
