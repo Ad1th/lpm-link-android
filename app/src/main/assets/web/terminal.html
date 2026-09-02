@@ -97,7 +97,12 @@
   // (ESC[<NaN;NaN;NaNM…) — that's the garbage that floods the session. We never
   // want a phone touch forwarded as a mouse event anyway; touch just scrolls.
   const isMouseReport = d => d.startsWith('\x1b[<') || d.startsWith('\x1b[M');
-  term.onData(d => { if (!isMouseReport(d)) post('input', d); });
+  term.onData(d => {
+    if (!isMouseReport(d)) {
+      console.log('[lpm] term.onData', { len: d.length, hex: btoa(d) });
+      post('input', d);
+    }
+  });
 
   // Touch scrolling. An app that owns the mouse (Claude Code) makes xterm route
   // drags to mouse reporting instead of scrolling its viewport, so a one-finger
