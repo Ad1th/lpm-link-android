@@ -59,10 +59,10 @@ fun LpmNavHost() {
                 )
             }
 
-            composable(Routes.TERMINAL) { backStack ->
-                val projectName = backStack.arguments?.getString("projectName") ?: return@composable
-                val terminalId = backStack.arguments?.getString("terminalId") ?: return@composable
-                // TODO: TerminalScreen
+            composable(Routes.TERMINAL) {
+                cx.lpm.link.ui.terminal.TerminalScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
         }
     }
