@@ -60,6 +60,10 @@
     console.log('[lpm] term.onResize event', size);
   });
 
+  term.onWriteParsed(() => {
+    // console.log('[lpm] term.onWriteParsed');
+  });
+
   // Unicode 11 width tables — same as the desktop. Without this xterm uses older
   // (Unicode 6) widths, so emoji and other wide characters get the wrong cell
   // width and render/align differently than on the Mac.
