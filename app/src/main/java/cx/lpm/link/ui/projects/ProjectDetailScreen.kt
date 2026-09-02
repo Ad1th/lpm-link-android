@@ -51,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun ProjectDetailScreen(
     onNavigateBack: () -> Unit,
     onTerminalClick: (String, String) -> Unit,
+    onNavigateToGit: (String) -> Unit,
     viewModel: ProjectDetailViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -63,6 +64,11 @@ fun ProjectDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { onNavigateToGit(uiState.projectName) }) {
+                        Icon(androidx.compose.material.icons.filled.CallSplit, contentDescription = "Git Review")
                     }
                 }
             )

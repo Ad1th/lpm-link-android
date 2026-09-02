@@ -19,6 +19,7 @@ object Routes {
     const val PROJECT_DETAIL = "project/{name}"
     const val TERMINAL = "terminal/{projectName}/{terminalId}"
     const val ACTIVITY = "activity"
+    const val GIT_REVIEW = "git/{name}"
 }
 
 @Composable
@@ -59,6 +60,9 @@ fun LpmNavHost() {
                     onNavigateBack = { navController.popBackStack() },
                     onTerminalClick = { proj, termId ->
                         navController.navigate("terminal/$proj/$termId")
+                    },
+                    onNavigateToGit = { proj ->
+                        navController.navigate("git/$proj")
                     }
                 )
             }
@@ -75,6 +79,12 @@ fun LpmNavHost() {
                     onTerminalClick = { proj, termId ->
                         navController.navigate("terminal/$proj/$termId")
                     }
+                )
+            }
+
+            composable(Routes.GIT_REVIEW) {
+                cx.lpm.link.ui.git.GitReviewScreen(
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }
