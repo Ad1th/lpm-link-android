@@ -20,6 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CallSplit
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.Card
@@ -69,10 +71,10 @@ fun ProjectDetailScreen(
                 },
                 actions = {
                     IconButton(onClick = { onNavigateToMemory(uiState.projectName) }) {
-                        Icon(androidx.compose.material.icons.filled.Description, contentDescription = "Session Memory")
+                        Icon(Icons.Default.Description, contentDescription = "Session Memory")
                     }
                     IconButton(onClick = { onNavigateToGit(uiState.projectName) }) {
-                        Icon(androidx.compose.material.icons.filled.CallSplit, contentDescription = "Git Review")
+                        Icon(Icons.Default.CallSplit, contentDescription = "Git Review")
                     }
                 }
             )
@@ -238,7 +240,7 @@ fun ProjectDetailScreen(
                     )
                 }
 
-                items(project.actions, key = { it.key }) { action ->
+                items(project.actions.entries.toList(), key = { it.key }) { (key, action) ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
@@ -256,12 +258,12 @@ fun ProjectDetailScreen(
                                     Spacer(modifier = Modifier.width(10.dp))
                                 }
                                 Text(
-                                    text = action.label ?: action.key,
+                                    text = action.label ?: key,
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Medium
                                 )
                             }
-                            FilledTonalButton(onClick = { viewModel.runAction(action.key) }) {
+                            FilledTonalButton(onClick = { viewModel.runAction(key) }) {
                                 Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Run")
