@@ -254,7 +254,7 @@ fun GitReviewScreen(
                             .background(Color(0xFF1E1E1E), RoundedCornerShape(8.dp))
                             .padding(10.dp)
                     ) {
-                        val lines = diff.diff.lines()
+                        val lines = diff.diff?.lines() ?: emptyList()
                         lines.forEach { line ->
                             val color = when {
                                 line.startsWith("+") && !line.startsWith("+++") -> Color(0xFF4ADE80) // green
