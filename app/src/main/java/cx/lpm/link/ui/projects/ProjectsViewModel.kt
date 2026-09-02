@@ -8,6 +8,7 @@ import cx.lpm.link.model.ProjectInfo
 import cx.lpm.link.model.SidebarData
 import cx.lpm.link.network.ConnectionState
 import cx.lpm.link.network.LpmClient
+import cx.lpm.link.network.MacDiscovery
 import cx.lpm.link.network.MessageRouter
 import cx.lpm.link.security.CertPinStore
 import cx.lpm.link.security.CredentialStore
@@ -46,6 +47,7 @@ data class ProjectsUiState(
 class ProjectsViewModel @Inject constructor(
     private val client: LpmClient,
     private val router: MessageRouter,
+    private val discovery: MacDiscovery,
     private val credentialStore: CredentialStore,
     private val certPinStore: CertPinStore,
     private val json: Json,
@@ -100,7 +102,24 @@ class ProjectsViewModel @Inject constructor(
             }
         }
 
+        // Observe mDNS discoveries to auto-repair empty hosts list
+        viewModelScope.launch {
+            discovery.discoveredMacs.collect { macs ->
+                if (client.state.value == ConnectionState.DISCONNECTED) {
+                    val activeId = credentialStore.getActiveServerId()
+                    if (activeId != null) {
+                        val s = credentialStore.getServer(activeId)
+                        if (s != null && s.hosts.isEmpty() && macs.isNotEmpty()) {
+                            Log.i(TAG, "Discovered mDNS Mac while disconnected with empty hosts, attempting autoConnect")
+                            autoConnect()
+                        }
+                    }
+                }
+            }
+        }
+
         router.start()
+        discovery.startDiscovery()
         autoConnect()
     }
 
@@ -109,12 +128,27 @@ class ProjectsViewModel @Inject constructor(
      */
     fun autoConnect() {
         val activeId = credentialStore.getActiveServerId() ?: return
-        val server = credentialStore.getServer(activeId) ?: return
+        var server = credentialStore.getServer(activeId) ?: return
         val credential = credentialStore.getCredential(activeId) ?: return
+
+        // If saved hosts list is empty, try to repair from discovered mDNS Macs
+        if (server.hosts.isEmpty()) {
+            val matchedMac = discovery.discoveredMacs.value.find { 
+                it.serverId == server.serverId || it.displayName == server.serverName 
+            } ?: discovery.discoveredMacs.value.firstOrNull()
+
+            if (matchedMac != null) {
+                Log.i(TAG, "Repaired empty server.hosts from mDNS: ${matchedMac.host}:${matchedMac.port}")
+                server = server.copy(hosts = listOf(matchedMac.host), port = matchedMac.port)
+                credentialStore.saveServer(server)
+            } else {
+                Log.w(TAG, "server.hosts is empty and no mDNS Mac found yet to repair")
+            }
+        }
 
         _uiState.value = _uiState.value.copy(currentServer = server)
 
-        if (client.state.value == ConnectionState.DISCONNECTED) {
+        if (client.state.value == ConnectionState.DISCONNECTED && server.hosts.isNotEmpty()) {
             val (sslFactory, trustManager) = TlsPinningFactory.create(server.certFingerprint)
             client.configure(
                 hosts = server.hosts,
