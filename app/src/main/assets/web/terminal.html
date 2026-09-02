@@ -318,7 +318,11 @@
   new ResizeObserver(() => refit()).observe(document.getElementById('term'));
   // Don't auto-focus on load — that would pop the keyboard open every time the
   // terminal opens. The user taps the terminal to focus and type.
-  window.addEventListener('load', () => { refit(); post('ready', {}); });
+  window.addEventListener('load', () => {
+    refit();
+    try { term.focus(); } catch (e) {}
+    post('ready', {});
+  });
 </script>
 </body>
 </html>
