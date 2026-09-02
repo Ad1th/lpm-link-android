@@ -202,14 +202,17 @@
   let lastCols = 0, lastRows = 0;
   function refit() {
     try {
+      const el = document.getElementById('term');
+      console.log('[lpm] refit: container size', { w: el.clientWidth, h: el.clientHeight });
       fit.fit();
       const c = term.cols, r = term.rows;
+      console.log('[lpm] refit: terminal size', { cols: c, rows: r });
       if (c !== lastCols || r !== lastRows) {
         lastCols = c; lastRows = r;
         post('resize', { cols: c, rows: r });
       }
     } catch (e) {
-      // silenty fail refit
+      console.error('[lpm] refit error:', e);
     }
   }
 
