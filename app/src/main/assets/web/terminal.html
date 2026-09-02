@@ -222,7 +222,12 @@
     return bytes;
   }
   function b64ToStr(b64) {
-    return new TextDecoder('utf-8').decode(b64ToBytes(b64));
+    try {
+      return new TextDecoder('utf-8').decode(b64ToBytes(b64));
+    } catch (e) {
+      console.error('b64ToStr error:', e);
+      return '';
+    }
   }
   // Time of the last server write, so submit can wait for the terminal to settle
   // after a paste before sending the submitting CR (see lpmSubmit).
