@@ -227,7 +227,6 @@
   let lastOutputAt = 0;
   window.lpmFeed = b64 => { lastOutputAt = performance.now(); term.write(b64ToBytes(b64)); };
   window.lpmSeed = b64 => { lastOutputAt = performance.now(); term.reset(); term.write(b64ToBytes(b64)); refit(); };
-  window.lpmSetTopInset = px => document.documentElement.style.setProperty('--top-inset', px + 'px');
 
   // Font size / theme, pushed from Swift (Settings → Terminal). Changing the font
   // reflows the grid, so refit afterwards to re-report geometry. Theme keeps the
