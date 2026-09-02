@@ -66,6 +66,7 @@ class TerminalViewModel @Inject constructor(
     private var streamOffset: Long? = null
 
     init {
+        Log.d(TAG, "Initializing ViewModel: project=$projectName, terminalId=$terminalId")
         viewModelScope.launch {
             router.terminalEvents.collect { msg ->
                 val type = msg["t"]?.jsonPrimitive?.content
