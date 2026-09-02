@@ -10,16 +10,19 @@ data class ProjectInfo(
     val running: Boolean = false,
     val parent: String? = null,
     val worktree: String? = null,
-    val services: Map<String, ServiceInfo> = emptyMap(),
+    val services: List<ServiceInfo> = emptyList(),
     val profiles: List<String> = emptyList(),
-    val actions: Map<String, ActionInfo> = emptyMap(),
+    val actions: List<ActionInfo> = emptyList(),
     val ssh: SshInfo? = null
 )
 
 @Serializable
 data class ServiceInfo(
-    val port: Int = 0,
-    val running: Boolean = false
+    val name: String,
+    val port: Int? = null,
+    val running: Boolean = false,
+    val cmd: String? = null,
+    val cwd: String? = null
 )
 
 @Serializable
@@ -30,7 +33,8 @@ data class ActionInfo(
     val confirm: Boolean = false,
     val display: Boolean = false,
     val primary: Boolean = false,
-    val type: String? = null
+    val type: String? = null,
+    val cmd: String? = null
 )
 
 @Serializable
