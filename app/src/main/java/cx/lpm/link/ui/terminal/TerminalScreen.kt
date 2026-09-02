@@ -156,6 +156,9 @@ fun TerminalScreen(
             )
         }
     ) { padding ->
+        LaunchedEffect(uiState) {
+            Log.d("TerminalScreen", "UI State update: $uiState")
+        }
         LaunchedEffect(padding) {
             Log.d("TerminalScreen", "Scaffold padding: $padding")
         }
