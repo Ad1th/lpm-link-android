@@ -65,6 +65,10 @@
 
   term.open(document.getElementById('term'));
 
+  function repaint() {
+    try { term.refresh(0, term.rows - 1); } catch (e) {}
+  }
+
   // Backgrounding the app (locking the phone) lets WebKit reclaim the web view's
   // GPU resources, including the WebGL glyph atlas texture — without the context
   // itself being reported lost. The renderer then keeps drawing from a dead
