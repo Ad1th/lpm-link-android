@@ -156,6 +156,7 @@ class TerminalViewModel @Inject constructor(
             isOwner = owner == null || owner.kind == "mobile",
             isReady = true
         )
+        Log.d(TAG, "Terminal is ready")
 
         val b64 = Base64.encodeToString(data.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
         viewModelScope.launch {
