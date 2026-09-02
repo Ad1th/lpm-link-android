@@ -189,7 +189,9 @@
     const end = () => {
       // A touch that never became a scroll is a tap → focus the terminal so iOS
       // opens the keyboard (xterm focuses its hidden input on focus()).
-      if (lastY !== null && !scrolling) term.focus();
+      if (lastY !== null && !scrolling) {
+        try { term.focus(); } catch (e) { console.warn('focus error', e); }
+      }
       lastY = null;
     };
     el.addEventListener('touchend', end, { passive: true });
