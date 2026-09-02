@@ -125,6 +125,7 @@ class TerminalViewModel @Inject constructor(
 
     fun submitPrompt(text: String) {
         if (text.isBlank()) return
+        Log.d(TAG, "Submitting prompt: ${text.take(20)}...")
         viewModelScope.launch {
             val b64 = Base64.encodeToString(text.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
             _commands.emit(TerminalCommand.Submit(b64))
