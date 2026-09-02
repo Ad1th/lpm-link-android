@@ -137,6 +137,7 @@ class TerminalViewModel @Inject constructor(
 
     private fun handleSeed(msg: kotlinx.serialization.json.JsonObject) {
         val data = msg["data"]?.jsonPrimitive?.content ?: ""
+        Log.d(TAG, "handleSeed: ${data.length} chars")
         val off = msg["off"]?.jsonPrimitive?.longOrNull
         val reset = msg["reset"]?.jsonPrimitive?.booleanOrNull ?: true
 
