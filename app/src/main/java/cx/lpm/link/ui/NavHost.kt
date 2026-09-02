@@ -49,6 +49,9 @@ fun LpmNavHost() {
                     onProjectClick = { name ->
                         navController.navigate("project/$name")
                     },
+                    onTerminalClick = { proj, termId ->
+                        navController.navigate("terminal/$proj/$termId")
+                    },
                     onNavigateToPairing = {
                         navController.navigate(Routes.PAIRING)
                     },

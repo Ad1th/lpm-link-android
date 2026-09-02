@@ -65,6 +65,7 @@ import cx.lpm.link.network.ConnectionState
 @Composable
 fun ProjectsScreen(
     onProjectClick: (String) -> Unit,
+    onTerminalClick: (String, String) -> Unit,
     onNavigateToPairing: () -> Unit,
     onNavigateToActivity: () -> Unit,
     onNavigateToAutomations: () -> Unit,
@@ -165,6 +166,26 @@ fun ProjectsScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    // Open Terminals Quick Access Section
+                    if (uiState.openTerminals.isNotEmpty()) {
+                        item {
+                            OpenTerminalsSection(
+                                terminals = uiState.openTerminals,
+                                onTerminalClick = onTerminalClick
+                            )
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = "PROJECTS",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+                        )
+                    }
+
                     items(uiState.projects, key = { it.name }) { project ->
                         ProjectCard(
                             project = project,
@@ -326,4 +347,116 @@ fun RunningPulseDot() {
             .clip(CircleShape)
             .background(Color(0xFF10B981))
     )
+}
+
+@Composable
+fun OpenTerminalsSection(
+    terminals: List<OpenTerminalSummary>,
+    onTerminalClick: (String, String) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "ACTIVE TERMINALS",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Text(
+                    text = "${terminals.size}",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        androidx.compose.foundation.lazy.LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(terminals, key = { "${it.projectName}/${it.terminal.id}" }) { item ->
+                OpenTerminalCard(
+                    item = item,
+                    onClick = { onTerminalClick(item.projectName, item.terminal.id) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OpenTerminalCard(
+    item: OpenTerminalSummary,
+    onClick: () -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .width(160.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = item.terminal.emoji ?: "🤖",
+                    fontSize = 20.sp
+                )
+                if (item.terminal.cli != null) {
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = item.terminal.cli.uppercase(),
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = item.terminal.label ?: item.terminal.id,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = item.projectLabel,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                fontFamily = FontFamily.Monospace,
+                fontSize = 11.sp
+            )
+        }
+    }
 }
