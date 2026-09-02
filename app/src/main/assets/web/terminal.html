@@ -289,7 +289,7 @@
   let delivering = false;
   window.lpmSubmit = async b64 => {
     if (delivering) return;
-    console.log('lpmSubmit starting', { bracketedPaste: term.modes.bracketedPasteMode });
+    console.log('[lpm] Submit prompt', { bracketedPaste: term.modes.bracketedPasteMode });
     const body = b64ToStr(b64).replace(/\r?\n/g, '\r');
     if (!term.modes.bracketedPasteMode) {
       console.log('lpmSubmit: no bracketed paste, sending direct');
