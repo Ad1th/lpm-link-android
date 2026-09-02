@@ -102,6 +102,7 @@ class TerminalViewModel @Inject constructor(
     }
 
     fun claimControl() {
+        Log.d(TAG, "Claiming control of terminal: $terminalId")
         val payload = buildJsonObject {
             put("id", terminalId)
         }
