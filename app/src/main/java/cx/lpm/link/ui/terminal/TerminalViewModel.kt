@@ -85,6 +85,7 @@ class TerminalViewModel @Inject constructor(
     }
 
     fun subscribe() {
+        Log.d(TAG, "Subscribing to terminal: $terminalId")
         val payload = buildJsonObject {
             put("id", terminalId)
             streamOffset?.let { put("from", it) }
