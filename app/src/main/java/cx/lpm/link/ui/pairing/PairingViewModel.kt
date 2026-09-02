@@ -58,6 +58,8 @@ class PairingViewModel @Inject constructor(
 
     private var localId: String = UUID.randomUUID().toString()
     private var pendingFingerprint: String? = null
+    private var activePairingHosts: List<String> = emptyList()
+    private var activePairingPort: Int = 8765
 
     init {
         // Listen for pairing events
@@ -111,6 +113,9 @@ class PairingViewModel @Inject constructor(
                 return@launch
             }
 
+            activePairingHosts = data.hosts.ifEmpty { listOf(reachableHost) }
+            activePairingPort = data.port
+
             // Connect with pinned cert
             val (sslFactory, trustManager) = TlsPinningFactory.create(data.fingerprint)
             client.configure(
@@ -138,6 +143,8 @@ class PairingViewModel @Inject constructor(
     fun pairWithDiscoveredMac(mac: DiscoveredMac) {
         _uiState.value = _uiState.value.copy(state = PairingState.CONNECTING)
         pendingFingerprint = null // TOFU mode
+        activePairingHosts = listOf(mac.host)
+        activePairingPort = mac.port
 
         viewModelScope.launch {
             val (sslFactory, trustManager) = TlsPinningFactory.create(null)
@@ -181,14 +188,17 @@ class PairingViewModel @Inject constructor(
         val token = msg["token"]?.jsonPrimitive?.content ?: return
         val serverId = msg["serverId"]?.jsonPrimitive?.content ?: return
         val serverName = msg["serverName"]?.jsonPrimitive?.content ?: "Mac"
-        val hosts = msg["hosts"]?.let { hostsArr ->
+        val hostsFromMsg = msg["hosts"]?.let { hostsArr ->
             try {
                 val arr = hostsArr as? kotlinx.serialization.json.JsonArray
                 arr?.map { it.jsonPrimitive.content } ?: emptyList()
             } catch (_: Exception) { emptyList() }
         } ?: emptyList()
 
-        Log.d(TAG, "Paired with $serverName (serverId=$serverId)")
+        val finalHosts = if (hostsFromMsg.isNotEmpty()) hostsFromMsg else activePairingHosts
+        val finalPort = if (activePairingPort > 0) activePairingPort else 8765
+
+        Log.d(TAG, "Paired with $serverName (serverId=$serverId, hosts=$finalHosts, port=$finalPort)")
 
         // Save credentials
         credentialStore.saveCredential(localId, DeviceCredential(deviceId, token))
@@ -196,8 +206,8 @@ class PairingViewModel @Inject constructor(
             localId = localId,
             serverId = serverId,
             serverName = serverName,
-            hosts = hosts,
-            port = client.let { 8765 }, // TODO: extract actual port
+            hosts = finalHosts,
+            port = finalPort,
             certFingerprint = pendingFingerprint,
         ))
         credentialStore.setActiveServerId(localId)
