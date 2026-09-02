@@ -92,9 +92,11 @@ fun TerminalScreen(
         viewModel.commands.collect { cmd ->
             when (cmd) {
                 is TerminalCommand.Feed -> {
+                    Log.d("TerminalScreen", "JS: lpmFeed called (${cmd.base64.length} bytes)")
                     webView.evaluateJavascript("window.lpmFeed?.('${cmd.base64}');", null)
                 }
                 is TerminalCommand.Seed -> {
+                    Log.d("TerminalScreen", "JS: lpmSeed called (${cmd.base64.length} bytes)")
                     webView.evaluateJavascript("window.lpmSeed?.('${cmd.base64}');", null)
                 }
                 is TerminalCommand.Submit -> {
