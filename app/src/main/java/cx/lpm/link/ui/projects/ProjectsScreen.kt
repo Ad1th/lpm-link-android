@@ -292,15 +292,15 @@ fun ProjectCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    project.services.forEach { (serviceName, service) ->
-                        val serviceRunning = service.running == true
+                    project.services.forEach { service ->
+                        val serviceRunning = service.running
                         Surface(
                             shape = RoundedCornerShape(8.dp),
                             color = if (serviceRunning)
                                 Color(0xFF10B981).copy(alpha = 0.15f)
                             else
                                 MaterialTheme.colorScheme.surface,
-                            modifier = Modifier.clickable { onToggleService(serviceName) }
+                            modifier = Modifier.clickable { onToggleService(service.name) }
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -314,7 +314,7 @@ fun ProjectCard(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = serviceName + (service.port?.let { ":$it" } ?: ""),
+                                    text = service.name + (service.port?.let { ":$it" } ?: ""),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -422,7 +422,7 @@ fun OpenTerminalCard(
                     text = item.terminal.emoji ?: "🤖",
                     fontSize = 20.sp
                 )
-                if (item.terminal.cli != null) {
+                if (!item.terminal.cli.isNullOrBlank()) {
                     Surface(
                         shape = RoundedCornerShape(4.dp),
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
