@@ -26,11 +26,18 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import javax.inject.Inject
 
+data class OpenTerminalSummary(
+    val projectName: String,
+    val projectLabel: String,
+    val terminal: cx.lpm.link.model.TerminalInfo,
+)
+
 data class ProjectsUiState(
     val connectionState: ConnectionState = ConnectionState.DISCONNECTED,
     val currentServer: MacServer? = null,
     val projects: List<ProjectInfo> = emptyList(),
     val sidebar: SidebarData? = null,
+    val openTerminals: List<OpenTerminalSummary> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
 )
@@ -69,6 +76,16 @@ class ProjectsViewModel @Inject constructor(
                 when (type) {
                     "projects" -> handleProjectsResponse(msg)
                     "sidebar" -> handleSidebarResponse(msg)
+                }
+            }
+        }
+
+        // Collect terminal events from WebSocket
+        viewModelScope.launch {
+            router.terminalEvents.collect { msg ->
+                val type = msg["t"]?.jsonPrimitive?.content
+                if (type == "terminals") {
+                    handleTerminalsResponse(msg)
                 }
             }
         }
@@ -163,9 +180,39 @@ class ProjectsViewModel @Inject constructor(
                 isLoading = false,
                 error = null
             )
+            // Query open terminals across all projects
+            list.forEach { proj ->
+                val payload = buildJsonObject { put("project", proj.name) }
+                client.send("terminals", payload)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to decode projects", e)
             _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+        }
+    }
+
+    private fun handleTerminalsResponse(msg: kotlinx.serialization.json.JsonObject) {
+        try {
+            val projectName = msg["project"]?.jsonPrimitive?.content ?: return
+            val arr = msg["terminals"]?.jsonArray ?: return
+            val projectLabel = _uiState.value.projects.find { it.name == projectName }?.label ?: projectName
+
+            val newTerms = arr.map { element ->
+                val term = json.decodeFromJsonElement<cx.lpm.link.model.TerminalInfo>(element)
+                OpenTerminalSummary(
+                    projectName = projectName,
+                    projectLabel = projectLabel,
+                    terminal = term
+                )
+            }
+
+            val current = _uiState.value.openTerminals.toMutableList()
+            current.removeAll { it.projectName == projectName }
+            current.addAll(newTerms)
+
+            _uiState.value = _uiState.value.copy(openTerminals = current)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to decode terminals response", e)
         }
     }
 
