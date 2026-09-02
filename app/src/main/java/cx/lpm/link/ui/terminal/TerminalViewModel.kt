@@ -119,7 +119,7 @@ class TerminalViewModel @Inject constructor(
     }
 
     fun onTerminalResize(cols: Int, rows: Int) {
-        Log.d(TAG, "Terminal resize: ${cols}x${rows}")
+        Log.d(TAG, "onTerminalResize: ${cols}x${rows}")
         val payload = buildJsonObject {
             put("id", terminalId)
             put("cols", cols)
