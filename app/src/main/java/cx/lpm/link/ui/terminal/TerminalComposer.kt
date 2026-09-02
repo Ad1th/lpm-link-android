@@ -61,6 +61,7 @@ fun TerminalComposer(
                 "Tab" to "\t",
                 "Ctrl+C" to "\u0003",
                 "Ctrl+D" to "\u0004",
+                "Ctrl+L" to "\u000c",
                 "↑" to "\u001b[A",
                 "↓" to "\u001b[B",
                 "←" to "\u001b[D",
