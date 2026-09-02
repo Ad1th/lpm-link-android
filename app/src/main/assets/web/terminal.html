@@ -199,11 +199,15 @@
   // Report geometry after a fit so the PTY reflows to the phone's real size.
   let lastCols = 0, lastRows = 0;
   function refit() {
-    try { fit.fit(); } catch (e) {}
-    const c = term.cols, r = term.rows;
-    if (c !== lastCols || r !== lastRows) {
-      lastCols = c; lastRows = r;
-      post('resize', { cols: c, rows: r });
+    try {
+      fit.fit();
+      const c = term.cols, r = term.rows;
+      if (c !== lastCols || r !== lastRows) {
+        lastCols = c; lastRows = r;
+        post('resize', { cols: c, rows: r });
+      }
+    } catch (e) {
+      console.error('refit error:', e);
     }
   }
 
