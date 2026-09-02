@@ -244,6 +244,7 @@ class LpmClient @Inject constructor() {
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
+            Log.v(TAG, "onMessage: ${text.take(30)}...")
             try {
                 val obj = json.parseToJsonElement(text).jsonObject
                 val type = obj["t"]?.jsonPrimitive?.content
