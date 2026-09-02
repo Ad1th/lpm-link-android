@@ -217,6 +217,7 @@
     try {
       const bytes = b64ToBytes(b64);
       term.write(bytes);
+      term.scrollToBottom();
     } catch (e) {
       console.error('[lpm] lpmFeed error:', e, { len: b64?.length });
     }
