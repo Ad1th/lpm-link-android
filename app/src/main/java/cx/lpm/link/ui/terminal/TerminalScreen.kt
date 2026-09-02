@@ -90,6 +90,7 @@ fun TerminalScreen(
 
     DisposableEffect(Unit) {
         onDispose {
+            Log.d("TerminalScreen", "Disposing WebView")
             webView.destroy()
         }
     }
