@@ -94,6 +94,7 @@ class TerminalViewModel @Inject constructor(
     }
 
     fun unsubscribe() {
+        Log.d(TAG, "Unsubscribing from terminal: $terminalId")
         val payload = buildJsonObject {
             put("id", terminalId)
         }
