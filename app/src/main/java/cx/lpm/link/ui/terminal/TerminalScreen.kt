@@ -183,6 +183,7 @@ fun TerminalScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
+                    .background(Color.Red) // Debug: see if the box is clipped
             ) {
                 AndroidView(
                     factory = { webView },
