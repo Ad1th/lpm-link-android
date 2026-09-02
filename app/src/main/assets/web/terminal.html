@@ -282,17 +282,26 @@
   let delivering = false;
   window.lpmSubmit = async b64 => {
     if (delivering) return;
+    console.log('lpmSubmit starting');
     const body = b64ToStr(b64).replace(/\r?\n/g, '\r');
-    if (!term.modes.bracketedPasteMode) { post('input', body + '\r'); return; }
+    if (!term.modes.bracketedPasteMode) {
+      console.log('lpmSubmit: no bracketed paste, sending direct');
+      post('input', body + '\r');
+      return;
+    }
     delivering = true;
     try {
+      console.log('lpmSubmit: using bracketed paste');
       post('input', '\x1b[200~' + body.replace(/\x1b/g, '␛') + '\x1b[201~');
       const sentAt = performance.now();
       await new Promise(resolve => {
         const check = () => {
           const now = performance.now();
           const settled = lastOutputAt >= sentAt && now - lastOutputAt >= PASTE_QUIET_MS;
-          if (settled || now - sentAt >= PASTE_CEILING_MS) resolve();
+          if (settled || now - sentAt >= PASTE_CEILING_MS) {
+            console.log('lpmSubmit: settled, sending CR');
+            resolve();
+          }
           else setTimeout(check, QUIET_POLL_MS);
         };
         setTimeout(check, QUIET_POLL_MS);
@@ -300,6 +309,7 @@
       post('input', '\r');
     } finally {
       delivering = false;
+      console.log('lpmSubmit finished');
     }
   };
 
