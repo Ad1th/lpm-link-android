@@ -3,6 +3,7 @@ package cx.lpm.link.ui.pairing
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cx.lpm.link.security.DeviceCredential
 import cx.lpm.link.network.DiscoveredMac
 import cx.lpm.link.network.HostProbe
 import cx.lpm.link.network.LpmClient
@@ -190,7 +191,7 @@ class PairingViewModel @Inject constructor(
         Log.d(TAG, "Paired with $serverName (serverId=$serverId)")
 
         // Save credentials
-        credentialStore.saveCredential(localId, CredentialStore.DeviceCredential(deviceId, token))
+        credentialStore.saveCredential(localId, DeviceCredential(deviceId, token))
         credentialStore.saveServer(MacServer(
             localId = localId,
             serverId = serverId,
