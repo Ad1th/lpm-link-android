@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -89,7 +90,7 @@ fun ActivityScreen(
                 },
                 actions = {
                     IconButton(onClick = onNavigateToUsage) {
-                        Icon(androidx.compose.material.icons.filled.Speed, contentDescription = "Rate Limits & Usage")
+                        Icon(Icons.Default.Speed, contentDescription = "Rate Limits & Usage")
                     }
                     IconButton(onClick = { viewModel.refreshAllStatuses() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
@@ -149,9 +150,9 @@ fun ActivityScreen(
                         StatusEntryCard(
                             projectName = group.projectName,
                             status = status,
-                            onClick = { onTerminalClick(group.projectName, status.paneID) },
+                            onClick = { onTerminalClick(group.projectName, status.paneID ?: "") },
                             onDismiss = {
-                                viewModel.clearStatus(group.projectName, status.paneID, status.value)
+                                viewModel.clearStatus(group.projectName, status.paneID ?: "", status.value)
                             }
                         )
                     }
