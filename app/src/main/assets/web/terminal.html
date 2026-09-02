@@ -242,7 +242,7 @@
     try {
       term.reset();
       term.write(b64ToBytes(b64));
-      refit();
+      setTimeout(refit, 50);
     } catch (e) {
       console.error('[lpm] lpmSeed error:', e);
     }
