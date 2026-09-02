@@ -52,6 +52,7 @@ fun ProjectDetailScreen(
     onNavigateBack: () -> Unit,
     onTerminalClick: (String, String) -> Unit,
     onNavigateToGit: (String) -> Unit,
+    onNavigateToMemory: (String) -> Unit,
     viewModel: ProjectDetailViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -67,6 +68,9 @@ fun ProjectDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { onNavigateToMemory(uiState.projectName) }) {
+                        Icon(androidx.compose.material.icons.filled.Description, contentDescription = "Session Memory")
+                    }
                     IconButton(onClick = { onNavigateToGit(uiState.projectName) }) {
                         Icon(androidx.compose.material.icons.filled.CallSplit, contentDescription = "Git Review")
                     }

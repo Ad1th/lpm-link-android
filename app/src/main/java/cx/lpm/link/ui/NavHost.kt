@@ -20,6 +20,8 @@ object Routes {
     const val TERMINAL = "terminal/{projectName}/{terminalId}"
     const val ACTIVITY = "activity"
     const val GIT_REVIEW = "git/{name}"
+    const val AUTOMATIONS = "automations"
+    const val MEMORY = "memory/{name}"
 }
 
 @Composable
@@ -51,6 +53,9 @@ fun LpmNavHost() {
                     },
                     onNavigateToActivity = {
                         navController.navigate(Routes.ACTIVITY)
+                    },
+                    onNavigateToAutomations = {
+                        navController.navigate(Routes.AUTOMATIONS)
                     }
                 )
             }
@@ -63,6 +68,9 @@ fun LpmNavHost() {
                     },
                     onNavigateToGit = { proj ->
                         navController.navigate("git/$proj")
+                    },
+                    onNavigateToMemory = { proj ->
+                        navController.navigate("memory/$proj")
                     }
                 )
             }
@@ -84,6 +92,18 @@ fun LpmNavHost() {
 
             composable(Routes.GIT_REVIEW) {
                 cx.lpm.link.ui.git.GitReviewScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(Routes.AUTOMATIONS) {
+                cx.lpm.link.ui.automations.AutomationsScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(Routes.MEMORY) {
+                cx.lpm.link.ui.memory.MemoryScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
