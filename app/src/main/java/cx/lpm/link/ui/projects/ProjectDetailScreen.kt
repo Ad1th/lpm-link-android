@@ -165,7 +165,7 @@ fun ProjectDetailScreen(
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )
-                                if (term.cli != null) {
+                                if (!term.cli.isNullOrBlank()) {
                                     Text(
                                         text = "CLI: ${term.cli}",
                                         style = MaterialTheme.typography.labelSmall,
@@ -194,7 +194,7 @@ fun ProjectDetailScreen(
                     )
                 }
 
-                items(project.services.entries.toList(), key = { it.key }) { (serviceName, service) ->
+                items(project.services, key = { it.name }) { service ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
@@ -208,7 +208,7 @@ fun ProjectDetailScreen(
                         ) {
                             Column {
                                 Text(
-                                    text = serviceName,
+                                    text = service.name,
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -221,8 +221,8 @@ fun ProjectDetailScreen(
                                 }
                             }
                             Switch(
-                                checked = service.running == true,
-                                onCheckedChange = { viewModel.toggleService(serviceName) }
+                                checked = service.running,
+                                onCheckedChange = { viewModel.toggleService(service.name) }
                             )
                         }
                     }
@@ -240,7 +240,7 @@ fun ProjectDetailScreen(
                     )
                 }
 
-                items(project.actions.entries.toList(), key = { it.key }) { (key, action) ->
+                items(project.actions, key = { it.key }) { action ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
@@ -258,12 +258,12 @@ fun ProjectDetailScreen(
                                     Spacer(modifier = Modifier.width(10.dp))
                                 }
                                 Text(
-                                    text = action.label ?: key,
+                                    text = action.label ?: action.key,
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Medium
                                 )
                             }
-                            FilledTonalButton(onClick = { viewModel.runAction(key) }) {
+                            FilledTonalButton(onClick = { viewModel.runAction(action.key) }) {
                                 Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Run")
