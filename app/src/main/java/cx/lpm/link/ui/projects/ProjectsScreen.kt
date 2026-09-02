@@ -28,8 +28,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.LinkOff
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -104,10 +106,10 @@ fun ProjectsScreen(
                 },
                 actions = {
                     IconButton(onClick = onNavigateToActivity) {
-                        Icon(androidx.compose.material.icons.filled.Notifications, contentDescription = "Agent Activity")
+                        Icon(Icons.Default.Notifications, contentDescription = "Agent Activity")
                     }
                     IconButton(onClick = onNavigateToAutomations) {
-                        Icon(androidx.compose.material.icons.filled.Schedule, contentDescription = "Automations")
+                        Icon(Icons.Default.Schedule, contentDescription = "Automations")
                     }
                     IconButton(onClick = { viewModel.refresh() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
@@ -220,14 +222,14 @@ fun ProjectCard(
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
-                            if (project.worktree == true || project.parent != null) {
+                            if (project.worktree != null || project.parent != null) {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Surface(
                                     shape = RoundedCornerShape(4.dp),
                                     color = MaterialTheme.colorScheme.secondaryContainer
                                 ) {
                                     Text(
-                                        text = if (project.worktree == true) "WORKTREE" else "COPY",
+                                        text = if (project.worktree != null) "WORKTREE" else "COPY",
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                                         style = MaterialTheme.typography.labelSmall,
                                         fontSize = 9.sp,
@@ -238,7 +240,7 @@ fun ProjectCard(
                         }
 
                         Text(
-                            text = project.root,
+                            text = project.root ?: "",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontFamily = FontFamily.Monospace,
