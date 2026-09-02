@@ -76,7 +76,9 @@ fun TerminalScreen(
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-                    view?.evaluateJavascript("window.lpmRevive?.();", null)
+                    view?.postDelayed({
+                        view.evaluateJavascript("window.lpmRevive?.();", null)
+                    }, 100)
                 }
             }
             webChromeClient = WebChromeClient()
