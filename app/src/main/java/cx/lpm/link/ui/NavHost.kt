@@ -18,6 +18,7 @@ object Routes {
     const val PROJECTS = "projects"
     const val PROJECT_DETAIL = "project/{name}"
     const val TERMINAL = "terminal/{projectName}/{terminalId}"
+    const val ACTIVITY = "activity"
 }
 
 @Composable
@@ -46,6 +47,9 @@ fun LpmNavHost() {
                     },
                     onNavigateToPairing = {
                         navController.navigate(Routes.PAIRING)
+                    },
+                    onNavigateToActivity = {
+                        navController.navigate(Routes.ACTIVITY)
                     }
                 )
             }
@@ -62,6 +66,15 @@ fun LpmNavHost() {
             composable(Routes.TERMINAL) {
                 cx.lpm.link.ui.terminal.TerminalScreen(
                     onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(Routes.ACTIVITY) {
+                cx.lpm.link.ui.activity.ActivityScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onTerminalClick = { proj, termId ->
+                        navController.navigate("terminal/$proj/$termId")
+                    }
                 )
             }
         }

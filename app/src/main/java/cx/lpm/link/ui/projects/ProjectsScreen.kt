@@ -64,6 +64,7 @@ import cx.lpm.link.network.ConnectionState
 fun ProjectsScreen(
     onProjectClick: (String) -> Unit,
     onNavigateToPairing: () -> Unit,
+    onNavigateToActivity: () -> Unit,
     viewModel: ProjectsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -101,6 +102,9 @@ fun ProjectsScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onNavigateToActivity) {
+                        Icon(androidx.compose.material.icons.filled.Notifications, contentDescription = "Agent Activity")
+                    }
                     IconButton(onClick = { viewModel.refresh() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
