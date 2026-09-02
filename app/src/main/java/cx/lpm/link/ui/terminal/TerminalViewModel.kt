@@ -167,6 +167,7 @@ class TerminalViewModel @Inject constructor(
 
     private fun handleOutput(msg: kotlinx.serialization.json.JsonObject) {
         val data = msg["d"]?.jsonPrimitive?.content ?: return
+        Log.v(TAG, "handleOutput: ${data.length} chars")
         val off = msg["off"]?.jsonPrimitive?.longOrNull
         if (off != null) {
             streamOffset = off
