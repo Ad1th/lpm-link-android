@@ -184,6 +184,12 @@ class LpmClient @Inject constructor() {
     // --- Internal ---
 
     private suspend fun connectInternal() {
+        if (hosts.isEmpty()) {
+            Log.e(TAG, "Cannot connect: hosts list is empty! Re-pairing or host resolution required.")
+            _state.value = ConnectionState.DISCONNECTED
+            return
+        }
+
         val factory = sslSocketFactory ?: run {
             Log.e(TAG, "SSL not configured")
             _state.value = ConnectionState.DISCONNECTED
@@ -245,6 +251,7 @@ class LpmClient @Inject constructor() {
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             Log.v(TAG, "onMessage: ${text.take(30)}...")
+            lastPongTime = System.currentTimeMillis()
             try {
                 val obj = json.parseToJsonElement(text).jsonObject
                 val type = obj["t"]?.jsonPrimitive?.content
@@ -252,7 +259,7 @@ class LpmClient @Inject constructor() {
                 when (type) {
                     "ready" -> onReady(obj)
                     "paired" -> onPaired(obj)
-                    "pong" -> lastPongTime = System.currentTimeMillis()
+                    "pong" -> { /* timestamp updated above */ }
                     else -> scope.launch { _messages.emit(obj) }
                 }
             } catch (e: Exception) {
