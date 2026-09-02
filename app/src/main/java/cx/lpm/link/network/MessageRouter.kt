@@ -72,6 +72,7 @@ class MessageRouter @Inject constructor(
 
     private suspend fun route(msg: JsonObject) {
         val type = msg["t"]?.jsonPrimitive?.content ?: return
+        Log.v(TAG, "route: $type")
 
         when (type) {
             // Pairing
