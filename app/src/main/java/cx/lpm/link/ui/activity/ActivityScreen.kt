@@ -54,6 +54,7 @@ import cx.lpm.link.model.StatusEntry
 fun ActivityScreen(
     onNavigateBack: () -> Unit,
     onTerminalClick: (String, String) -> Unit,
+    onNavigateToUsage: () -> Unit,
     viewModel: ActivityViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -87,6 +88,9 @@ fun ActivityScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onNavigateToUsage) {
+                        Icon(androidx.compose.material.icons.filled.Speed, contentDescription = "Rate Limits & Usage")
+                    }
                     IconButton(onClick = { viewModel.refreshAllStatuses() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
