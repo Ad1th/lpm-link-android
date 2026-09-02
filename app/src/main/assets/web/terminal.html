@@ -55,6 +55,10 @@
   const fit = new FitAddon.FitAddon();
   term.loadAddon(fit);
 
+  term.onResize(size => {
+    console.log('[lpm] term.onResize event', size);
+  });
+
   // Unicode 11 width tables — same as the desktop. Without this xterm uses older
   // (Unicode 6) widths, so emoji and other wide characters get the wrong cell
   // width and render/align differently than on the Mac.
