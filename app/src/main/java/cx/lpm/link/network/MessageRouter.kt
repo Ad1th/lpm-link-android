@@ -1,5 +1,6 @@
 package cx.lpm.link.network
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,6 +22,7 @@ class MessageRouter @Inject constructor(
     private val client: LpmClient,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val TAG = "MessageRouter"
 
     // Feature-specific flows
     private val _projectEvents = MutableSharedFlow<JsonObject>(extraBufferCapacity = 64)
@@ -53,9 +55,16 @@ class MessageRouter @Inject constructor(
     private val _pairingEvents = MutableSharedFlow<JsonObject>(extraBufferCapacity = 16)
     val pairingEvents: SharedFlow<JsonObject> = _pairingEvents
 
+    private var started = false
+
     fun start() {
+        if (started) return
+        started = true
+        Log.d(TAG, "Router starting")
         scope.launch {
             client.messages.collect { msg ->
+                val type = msg["t"]?.jsonPrimitive?.content
+                Log.d(TAG, "Routing message type: $type")
                 route(msg)
             }
         }
