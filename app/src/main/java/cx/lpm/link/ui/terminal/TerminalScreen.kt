@@ -63,6 +63,8 @@ fun TerminalScreen(
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.allowFileAccess = true
+            isVerticalScrollBarEnabled = false
+            isHorizontalScrollBarEnabled = false
 
             val bridge = TerminalBridge(
                 onInputReceived = { data -> viewModel.onTerminalInput(data) },
