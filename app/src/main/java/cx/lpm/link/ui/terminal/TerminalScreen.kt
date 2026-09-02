@@ -1,7 +1,7 @@
 package cx.lpm.link.ui.terminal
 
 import android.annotation.SuppressLint
-import android.util.Base64
+import android.util.Log
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -98,6 +98,7 @@ fun TerminalScreen(
                     webView.evaluateJavascript("window.lpmSeed?.('${cmd.base64}');", null)
                 }
                 is TerminalCommand.Submit -> {
+                    Log.d("TerminalScreen", "JS: lpmSubmit called")
                     webView.evaluateJavascript("window.lpmSubmit?.('${cmd.base64}');", null)
                 }
             }
