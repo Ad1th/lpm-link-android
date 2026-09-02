@@ -171,6 +171,7 @@ fun TerminalScreen(
                 .padding(bottom = padding.calculateBottomPadding())
                 .imePadding()
                 .background(Color(0xFF2B2B2B)) // Match xterm dark background
+                .border(1.dp, Color.Blue.copy(alpha = 0.2f))
         ) {
             Spacer(modifier = Modifier.height(padding.calculateTopPadding()))
 
