@@ -110,7 +110,7 @@ class TerminalViewModel @Inject constructor(
     }
 
     fun onTerminalInput(data: String) {
-        Log.d(TAG, "Terminal input: ${data.length} bytes")
+        Log.d(TAG, "onTerminalInput: sending ${data.length} chars")
         val payload = buildJsonObject {
             put("id", terminalId)
             put("d", data)
