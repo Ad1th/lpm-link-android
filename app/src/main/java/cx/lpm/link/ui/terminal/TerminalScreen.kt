@@ -134,6 +134,9 @@ fun TerminalScreen(
             )
         }
     ) { padding ->
+        LaunchedEffect(padding) {
+            Log.d("TerminalScreen", "Scaffold padding: $padding")
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
