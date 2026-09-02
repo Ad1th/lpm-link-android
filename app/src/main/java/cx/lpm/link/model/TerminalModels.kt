@@ -8,7 +8,7 @@ data class TerminalInfo(
     val label: String? = null,
     val pinned: Boolean = false,
     val emoji: String? = null,
-    val cli: Boolean = false
+    val cli: String? = null
 )
 
 @Serializable
