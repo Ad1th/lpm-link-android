@@ -1,6 +1,7 @@
 package cx.lpm.link.ui.terminal
 
 import android.annotation.SuppressLint
+import android.util.Base64
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -97,9 +98,8 @@ fun TerminalScreen(
                     webView.evaluateJavascript("window.lpmSeed?.('${cmd.base64}');", null)
                 }
                 is TerminalCommand.Submit -> {
-                    // Escape single quotes and backslashes for JS string literal
-                    val escaped = cmd.text.replace("\\", "\\\\").replace("'", "\\'")
-                    webView.evaluateJavascript("window.lpmSubmit?.('$escaped');", null)
+                    val b64 = Base64.encodeToString(cmd.text.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                    webView.evaluateJavascript("window.lpmSubmit?.('$b64');", null)
                 }
             }
         }
