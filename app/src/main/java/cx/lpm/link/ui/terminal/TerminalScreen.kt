@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PanTool
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -139,6 +140,11 @@ fun TerminalScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        webView.evaluateJavascript("window.term?.reset?.();", null)
+                    }) {
+                        Icon(Icons.Default.DeleteSweep, contentDescription = "Clear Terminal")
+                    }
                     IconButton(onClick = {
                         webView.evaluateJavascript("window.lpmRevive?.();", null)
                         webView.evaluateJavascript("window.refit?.();", null)
