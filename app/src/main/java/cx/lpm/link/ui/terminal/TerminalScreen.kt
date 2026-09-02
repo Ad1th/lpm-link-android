@@ -98,8 +98,7 @@ fun TerminalScreen(
                     webView.evaluateJavascript("window.lpmSeed?.('${cmd.base64}');", null)
                 }
                 is TerminalCommand.Submit -> {
-                    val b64 = Base64.encodeToString(cmd.text.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-                    webView.evaluateJavascript("window.lpmSubmit?.('$b64');", null)
+                    webView.evaluateJavascript("window.lpmSubmit?.('${cmd.base64}');", null)
                 }
             }
         }

@@ -27,7 +27,7 @@ import javax.inject.Inject
 sealed interface TerminalCommand {
     data class Feed(val base64: String) : TerminalCommand
     data class Seed(val base64: String) : TerminalCommand
-    data class Submit(val text: String) : TerminalCommand
+    data class Submit(val base64: String) : TerminalCommand
 }
 
 data class TerminalUiState(
@@ -126,7 +126,8 @@ class TerminalViewModel @Inject constructor(
     fun submitPrompt(text: String) {
         if (text.isBlank()) return
         viewModelScope.launch {
-            _commands.emit(TerminalCommand.Submit(text))
+            val b64 = Base64.encodeToString(text.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+            _commands.emit(TerminalCommand.Submit(b64))
         }
     }
 
