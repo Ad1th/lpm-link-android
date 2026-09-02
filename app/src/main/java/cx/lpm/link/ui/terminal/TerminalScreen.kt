@@ -78,6 +78,7 @@ fun TerminalScreen(
                     super.onPageFinished(view, url)
                     view?.postDelayed({
                         view.evaluateJavascript("window.lpmRevive?.();", null)
+                        view.evaluateJavascript("window.lpmSetFontSize?.(13);", null)
                     }, 100)
                 }
             }
