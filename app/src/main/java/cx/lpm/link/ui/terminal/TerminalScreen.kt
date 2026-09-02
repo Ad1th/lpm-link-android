@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -156,11 +157,13 @@ fun TerminalScreen(
             )
         }
     ) { padding ->
+        val density = LocalDensity.current
         LaunchedEffect(uiState) {
             Log.d("TerminalScreen", "UI State update: $uiState")
         }
         LaunchedEffect(padding) {
-            Log.d("TerminalScreen", "Scaffold padding: $padding")
+            val topPx = with(density) { padding.calculateTopPadding().toPx() }
+            Log.d("TerminalScreen", "Scaffold padding: $padding (top: ${topPx}px)")
         }
         Column(
             modifier = Modifier
