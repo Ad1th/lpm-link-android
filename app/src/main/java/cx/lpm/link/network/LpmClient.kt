@@ -60,7 +60,7 @@ class LpmClient @Inject constructor() {
         private const val TAG = "LpmClient"
         private const val DEFAULT_PORT = 8765
         private const val HEARTBEAT_INTERVAL_MS = 20_000L
-        private const val PONG_DEADLINE_MS = 10_000L
+        private const val PONG_DEADLINE_MS = 60_000L
         private const val MAX_BACKOFF_MS = 20_000.0
         private const val MAX_OFFLINE_QUEUE = 32
     }
