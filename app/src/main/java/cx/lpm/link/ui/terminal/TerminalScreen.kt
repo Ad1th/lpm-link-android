@@ -66,6 +66,7 @@ fun TerminalScreen(
 
     val webView = remember {
         WebView(context).apply {
+            WebView.setWebContentsDebuggingEnabled(true)
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.allowFileAccess = true
