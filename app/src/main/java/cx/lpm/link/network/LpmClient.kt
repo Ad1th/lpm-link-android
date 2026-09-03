@@ -322,25 +322,7 @@ class LpmClient @Inject constructor() {
     }
 
     private fun startHeartbeat() {
-        scope.launch {
-            while (webSocket != null) {
-                delay(HEARTBEAT_INTERVAL_MS)
-                val ws = webSocket ?: break
-
-                // Check if pong was received recently
-                val elapsed = System.currentTimeMillis() - lastPongTime
-                if (elapsed > HEARTBEAT_INTERVAL_MS + PONG_DEADLINE_MS) {
-                    Log.w(TAG, "Pong timeout — reconnecting")
-                    ws.cancel()
-                    this@LpmClient.webSocket = null
-                    scheduleReconnect()
-                    break
-                }
-
-                // Send protocol-level ping
-                ws.send("""{"t":"ping"}""")
-            }
-        }
+        // Monitored passively without sending unhandled text ping frames
     }
 
     private fun scheduleReconnect() {
