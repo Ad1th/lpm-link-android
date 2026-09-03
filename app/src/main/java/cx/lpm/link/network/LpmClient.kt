@@ -166,7 +166,12 @@ class LpmClient @Inject constructor() {
             put("name", deviceName)
             replaces?.let { put("replaces", it) }
         }.toString()
-        webSocket?.send(msg)
+        val ws = webSocket
+        if (ws != null && _state.value != ConnectionState.DISCONNECTED) {
+            ws.send(msg)
+        } else {
+            offlineQueue.add(msg)
+        }
     }
 
     /**
@@ -178,7 +183,12 @@ class LpmClient @Inject constructor() {
             put("name", deviceName)
             replaces?.let { put("replaces", it) }
         }.toString()
-        webSocket?.send(msg)
+        val ws = webSocket
+        if (ws != null && _state.value != ConnectionState.DISCONNECTED) {
+            ws.send(msg)
+        } else {
+            offlineQueue.add(msg)
+        }
     }
 
     // --- Internal ---
@@ -232,6 +242,9 @@ class LpmClient @Inject constructor() {
             this@LpmClient.webSocket = webSocket
             reconnectAttempt = 0
             lastPongTime = System.currentTimeMillis()
+
+            // Flush any pending pair / auth / queued messages as soon as socket connects
+            flushOfflineQueue()
 
             // Authenticate if we have credentials, otherwise wait for pairing
             val did = deviceId

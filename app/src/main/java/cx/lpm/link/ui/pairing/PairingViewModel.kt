@@ -127,9 +127,6 @@ class PairingViewModel @Inject constructor(
                 token = null,
             )
             client.connect()
-
-            // Wait briefly for connection, then send pair
-            kotlinx.coroutines.delay(500)
             client.sendPair(
                 code = data.code,
                 deviceName = android.os.Build.MODEL,
@@ -157,8 +154,6 @@ class PairingViewModel @Inject constructor(
                 token = null,
             )
             client.connect()
-
-            kotlinx.coroutines.delay(500)
             client.sendPairRequest(deviceName = android.os.Build.MODEL)
         }
     }
