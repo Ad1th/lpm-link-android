@@ -190,11 +190,15 @@
   function refit() {
     try {
       const el = document.getElementById('term');
-      console.log('[lpm] refit: container size', { w: el.clientWidth, h: el.clientHeight });
+      if (!el || el.clientHeight < 50 || el.clientWidth < 50) {
+        console.log('[lpm] refit deferred: container too small', { w: el?.clientWidth, h: el?.clientHeight });
+        setTimeout(refit, 100);
+        return;
+      }
       fit.fit();
       const c = term.cols, r = term.rows;
       console.log('[lpm] refit: terminal size', { cols: c, rows: r });
-      if (c !== lastCols || r !== lastRows) {
+      if (c > 0 && r > 1 && (c !== lastCols || r !== lastRows)) {
         lastCols = c; lastRows = r;
         post('resize', { cols: c, rows: r });
       }
