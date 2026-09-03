@@ -9,6 +9,7 @@ import cx.lpm.link.model.ControlOwner
 import cx.lpm.link.network.LpmClient
 import cx.lpm.link.network.MessageRouter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -60,7 +61,11 @@ class TerminalViewModel @Inject constructor(
     val uiState: StateFlow<TerminalUiState> = _uiState
 
     // Commands to be executed by the WebView
-    private val _commands = MutableSharedFlow<TerminalCommand>(extraBufferCapacity = 256)
+    private val _commands = MutableSharedFlow<TerminalCommand>(
+        replay = 64,
+        extraBufferCapacity = 256,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
     val commands: SharedFlow<TerminalCommand> = _commands
 
     private var streamOffset: Long? = null
