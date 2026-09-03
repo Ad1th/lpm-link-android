@@ -203,7 +203,7 @@ class LpmClient @Inject constructor() {
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(0, TimeUnit.MILLISECONDS) // WebSocket keeps alive
             .writeTimeout(20, TimeUnit.SECONDS)
-            .pingInterval(15, TimeUnit.SECONDS) // Native WS keepalive ping
+            .pingInterval(0, TimeUnit.SECONDS) // Disables OkHttp control frame pings
             .build()
 
         // Try each host
