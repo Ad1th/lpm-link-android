@@ -39,7 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,6 +63,7 @@ fun TerminalScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var isPageLoaded by remember { mutableStateOf(false) }
 
     val webView = remember {
         WebView(context).apply {
@@ -80,6 +83,7 @@ fun TerminalScreen(
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
+                    isPageLoaded = true
                     view?.postDelayed({
                         view.evaluateJavascript("window.lpmRevive?.();", null)
                         view.evaluateJavascript("window.lpmSetFontSize?.(13);", null)
@@ -99,8 +103,10 @@ fun TerminalScreen(
         }
     }
 
-    // Collect and dispatch commands to WebView
-    LaunchedEffect(Unit) {
+    // Collect and dispatch commands to WebView once page is loaded
+    LaunchedEffect(isPageLoaded) {
+        if (!isPageLoaded) return@LaunchedEffect
+        Log.d("TerminalScreen", "Page loaded, starting command collector")
         viewModel.commands.collect { cmd ->
             when (cmd) {
                 is TerminalCommand.Feed -> {
