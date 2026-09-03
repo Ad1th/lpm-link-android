@@ -106,7 +106,8 @@ fun TerminalScreen(
     // Collect and dispatch commands to WebView once page is loaded
     LaunchedEffect(isPageLoaded) {
         if (!isPageLoaded) return@LaunchedEffect
-        Log.d("TerminalScreen", "Page loaded, starting command collector")
+        Log.d("TerminalScreen", "Page loaded, subscribing and starting command collector")
+        viewModel.subscribe()
         viewModel.commands.collect { cmd ->
             when (cmd) {
                 is TerminalCommand.Feed -> {
