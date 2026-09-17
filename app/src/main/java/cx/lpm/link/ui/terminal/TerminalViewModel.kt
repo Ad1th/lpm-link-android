@@ -182,7 +182,7 @@ class TerminalViewModel @Inject constructor(
 
         _uiState.value = _uiState.value.copy(
             owner = owner,
-            isOwner = owner == null || owner.kind == "mobile",
+            isOwner = isMe(owner),
             isReady = true
         )
         Log.d(TAG, "Terminal is ready")
@@ -230,9 +230,12 @@ class TerminalViewModel @Inject constructor(
 
         _uiState.value = _uiState.value.copy(
             owner = owner,
-            isOwner = owner == null || owner.kind == "mobile"
+            isOwner = isMe(owner)
         )
     }
+
+    private fun isMe(owner: ControlOwner?): Boolean =
+        owner == null || (owner.kind == "mobile" && owner.id == client.currentDeviceId)
 
     override fun onCleared() {
         unsubscribe()
