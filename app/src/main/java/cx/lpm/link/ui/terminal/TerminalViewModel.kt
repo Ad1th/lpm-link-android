@@ -60,11 +60,12 @@ class TerminalViewModel @Inject constructor(
     )
     val uiState: StateFlow<TerminalUiState> = _uiState
 
-    // Commands to be executed by the WebView
+    // Commands to be executed by the WebView. No replay: a (re)created WebView
+    // calls reseed() and gets a full-screen seed instead of a partial tail of
+    // stale incremental chunks.
     private val _commands = MutableSharedFlow<TerminalCommand>(
-        replay = 64,
-        extraBufferCapacity = 256,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        extraBufferCapacity = 1024,
+        onBufferOverflow = BufferOverflow.SUSPEND,
     )
     val commands: SharedFlow<TerminalCommand> = _commands
 
