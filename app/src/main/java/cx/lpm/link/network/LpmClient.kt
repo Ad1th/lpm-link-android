@@ -89,6 +89,10 @@ class LpmClient @Inject constructor() {
 
     // WebSocket
     private var webSocket: WebSocket? = null
+    // The socket most recently created (possibly not yet open). Callbacks from any
+    // other socket are stale and must not touch connection state.
+    @Volatile private var pendingSocket: WebSocket? = null
+    private var hostIndex = 0
     private var reconnectAttempt = 0
     private var lastPongTime = 0L
 
@@ -217,24 +221,21 @@ class LpmClient @Inject constructor() {
             .pingInterval(0, TimeUnit.SECONDS) // Disables OkHttp control frame pings
             .build()
 
-        // Try each host
-        for (host in hosts) {
-            val bracketedHost = if (':' in host) "[$host]" else host
-            val url = "wss://$bracketedHost:$port/"
+        // newWebSocket is asynchronous and never throws for an unreachable host;
+        // failures arrive in onFailure, which advances hostIndex so the next
+        // attempt tries the next host.
+        val host = hosts[hostIndex % hosts.size]
+        val bracketedHost = if (':' in host) "[$host]" else host
+        val url = "wss://$bracketedHost:$port/"
+        Log.d(TAG, "Connecting to $url")
+        try {
             val request = Request.Builder().url(url).build()
-
-            Log.d(TAG, "Connecting to $url")
-
-            try {
-                client.newWebSocket(request, createListener())
-                return // listener callbacks handle the rest
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to connect to $host: ${e.message}")
-            }
+            pendingSocket = client.newWebSocket(request, createListener())
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to connect to $host: ${e.message}")
+            hostIndex++
+            scheduleReconnect()
         }
-
-        // All hosts failed
-        scheduleReconnect()
     }
 
     private fun createListener() = object : WebSocketListener() {
@@ -286,7 +287,10 @@ class LpmClient @Inject constructor() {
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             Log.w(TAG, "WebSocket failure: ${t.message}")
+            if (webSocket !== pendingSocket) return // stale socket
+            if (this@LpmClient.webSocket == null) hostIndex++ // never opened: try next host
             this@LpmClient.webSocket = null
+            pendingSocket = null
             scheduleReconnect()
         }
 
