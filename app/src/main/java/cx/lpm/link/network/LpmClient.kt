@@ -133,7 +133,9 @@ class LpmClient @Inject constructor() {
     fun disconnect() {
         reconnectAttempt = Int.MAX_VALUE // prevent reconnect
         webSocket?.close(1000, "User disconnect")
+        pendingSocket?.cancel()
         webSocket = null
+        pendingSocket = null
         _state.value = ConnectionState.DISCONNECTED
     }
 
@@ -240,6 +242,7 @@ class LpmClient @Inject constructor() {
 
     private fun createListener() = object : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
+            if (webSocket !== pendingSocket) { webSocket.cancel(); return }
             Log.d(TAG, "WebSocket opened")
             this@LpmClient.webSocket = webSocket
             reconnectAttempt = 0
@@ -296,7 +299,9 @@ class LpmClient @Inject constructor() {
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
             Log.d(TAG, "WebSocket closed: $code $reason")
+            if (webSocket !== pendingSocket) return // stale socket
             this@LpmClient.webSocket = null
+            pendingSocket = null
             if (reconnectAttempt < Int.MAX_VALUE) {
                 scheduleReconnect()
             }
