@@ -69,6 +69,10 @@ class TerminalViewModel @Inject constructor(
     val commands: SharedFlow<TerminalCommand> = _commands
 
     private var streamOffset: Long? = null
+    // Set between a `sub` and its seed: live chunks in that window are covered by the seed.
+    private var awaitingSeed = false
+    // Whether a WebView is attached (subscriptions are driven by it).
+    private var viewAttached = false
 
     init {
         Log.d(TAG, "Initializing ViewModel: project=$projectName, terminalId=$terminalId")
@@ -87,11 +91,28 @@ class TerminalViewModel @Inject constructor(
             }
         }
 
+        // The server's subscriptions are per connection: after any reconnect the
+        // phone gets no output until it subscribes again. Resume from the last offset.
+        viewModelScope.launch {
+            router.broadcastEvents.collect { msg ->
+                if (msg["t"]?.jsonPrimitive?.content == "ready" && viewAttached) {
+                    Log.d(TAG, "Reconnected; re-subscribing to $terminalId")
+                    subscribe()
+                }
+            }
+        }
+    }
+
+    /** A fresh WebView has an empty emulator: request a full (resetting) seed. */
+    fun reseed() {
+        viewAttached = true
+        streamOffset = null
         subscribe()
     }
 
     fun subscribe() {
         Log.d(TAG, "Subscribing to terminal: $terminalId")
+        awaitingSeed = true
         val payload = buildJsonObject {
             put("id", terminalId)
             streamOffset?.let { put("from", it) }
@@ -150,6 +171,7 @@ class TerminalViewModel @Inject constructor(
         val reset = msg["reset"]?.jsonPrimitive?.booleanOrNull ?: true
 
         streamOffset = off
+        awaitingSeed = false
 
         // Decode or forward owner
         val ownerObj = msg["owner"]?.jsonObject

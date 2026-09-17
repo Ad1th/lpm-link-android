@@ -115,7 +115,7 @@ fun TerminalScreen(
     LaunchedEffect(isPageLoaded) {
         if (!isPageLoaded) return@LaunchedEffect
         Log.d("TerminalScreen", "Page loaded, subscribing and starting command collector")
-        viewModel.subscribe()
+        viewModel.reseed()
         viewModel.commands.collect { cmd ->
             when (cmd) {
                 is TerminalCommand.Feed -> {
