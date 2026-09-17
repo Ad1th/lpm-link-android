@@ -58,6 +58,8 @@ class PairingViewModel @Inject constructor(
 
     private var localId: String = UUID.randomUUID().toString()
     private var pendingFingerprint: String? = null
+    // Trust manager of the TOFU (discovered-Mac) connection, to read the observed cert.
+    private var tofuTrustManager: javax.net.ssl.X509TrustManager? = null
     private var activePairingHosts: List<String> = emptyList()
     private var activePairingPort: Int = 8765
 
@@ -101,6 +103,7 @@ class PairingViewModel @Inject constructor(
 
         _uiState.value = _uiState.value.copy(state = PairingState.CONNECTING)
         pendingFingerprint = data.fingerprint
+        tofuTrustManager = null
 
         viewModelScope.launch {
             // Race hosts to find reachable one
@@ -145,6 +148,7 @@ class PairingViewModel @Inject constructor(
 
         viewModelScope.launch {
             val (sslFactory, trustManager) = TlsPinningFactory.create(null)
+            tofuTrustManager = trustManager
             client.configure(
                 hosts = listOf(mac.host),
                 port = mac.port,
@@ -194,6 +198,12 @@ class PairingViewModel @Inject constructor(
         val finalPort = if (activePairingPort > 0) activePairingPort else 8765
 
         Log.d(TAG, "Paired with $serverName (serverId=$serverId, hosts=$finalHosts, port=$finalPort)")
+
+        // TOFU: pin the certificate observed during pairing. Saving null would make
+        // every later connection accept any certificate.
+        if (pendingFingerprint == null) {
+            pendingFingerprint = tofuTrustManager?.let { TlsPinningFactory.observedFingerprint(it) }
+        }
 
         // Save credentials
         credentialStore.saveCredential(localId, DeviceCredential(deviceId, token))
