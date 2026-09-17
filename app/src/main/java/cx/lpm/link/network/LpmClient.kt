@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -274,7 +275,9 @@ class LpmClient @Inject constructor() {
                     "ready" -> onReady(obj)
                     "paired" -> onPaired(obj)
                     "pong" -> { /* timestamp updated above */ }
-                    else -> scope.launch { _messages.emit(obj) }
+                    // Emit on the (single) OkHttp reader thread to preserve frame
+                    // order — launching a coroutine per frame reorders PTY output.
+                    else -> runBlocking { _messages.emit(obj) }
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to parse message: ${e.message}")
@@ -304,14 +307,14 @@ class LpmClient @Inject constructor() {
             // hosts could be a JSON array of strings
         }
         flushOfflineQueue()
-        scope.launch { _messages.emit(obj) }
+        runBlocking { _messages.emit(obj) }
     }
 
     private fun onPaired(obj: JsonObject) {
         Log.d(TAG, "Paired successfully")
         _state.value = ConnectionState.CONNECTED
         flushOfflineQueue()
-        scope.launch { _messages.emit(obj) }
+        runBlocking { _messages.emit(obj) }
     }
 
     private fun flushOfflineQueue() {
