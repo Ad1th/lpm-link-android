@@ -200,7 +200,17 @@ class TerminalViewModel @Inject constructor(
     private fun handleOutput(msg: kotlinx.serialization.json.JsonObject) {
         val data = msg["d"]?.jsonPrimitive?.content ?: return
         Log.v(TAG, "handleOutput: ${data.length} chars, offset=${msg["off"]}")
+        if (awaitingSeed) return
         val off = msg["off"]?.jsonPrimitive?.longOrNull
+        val known = streamOffset
+        if (off != null && known != null) {
+            if (off <= known) return // already covered by the seed
+            if (off - data.toByteArray(Charsets.UTF_8).size != known) {
+                Log.w(TAG, "Output gap (known=$known, chunk ends $off); resyncing")
+                subscribe()
+                return
+            }
+        }
         if (off != null) {
             streamOffset = off
         }
