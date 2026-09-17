@@ -118,6 +118,15 @@ class LpmClient @Inject constructor() {
         this.token = token
     }
 
+    /** Store credentials received from a successful pairing so reconnects authenticate. */
+    fun updateCredentials(deviceId: String, token: String) {
+        this.deviceId = deviceId
+        this.token = token
+    }
+
+    /** This phone's device id, once paired/authenticated. */
+    val currentDeviceId: String? get() = deviceId
+
     /**
      * Initiate connection to the desktop. Tries each host in order.
      */
@@ -322,6 +331,9 @@ class LpmClient @Inject constructor() {
 
     private fun onPaired(obj: JsonObject) {
         Log.d(TAG, "Paired successfully")
+        val did = obj["deviceId"]?.jsonPrimitive?.content
+        val tok = obj["token"]?.jsonPrimitive?.content
+        if (did != null && tok != null) updateCredentials(did, tok)
         _state.value = ConnectionState.CONNECTED
         flushOfflineQueue()
         runBlocking { _messages.emit(obj) }
