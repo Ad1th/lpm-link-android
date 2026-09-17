@@ -243,13 +243,14 @@ class LpmClient @Inject constructor() {
             reconnectAttempt = 0
             lastPongTime = System.currentTimeMillis()
 
-            // Flush any pending pair / auth / queued messages as soon as socket connects
-            flushOfflineQueue()
-
-            // Authenticate if we have credentials, otherwise wait for pairing
+            // The server requires the FIRST frame to be pair/pairRequest/auth and
+            // drops the connection otherwise. With credentials, auth goes first and
+            // the queue is flushed on `ready`; without, the queue holds the pair frame.
             val did = deviceId
             val tok = token
-            if (did != null && tok != null) {
+            if (did == null || tok == null) {
+                flushOfflineQueue()
+            } else {
                 _state.value = ConnectionState.AUTHENTICATING
                 val authMsg = buildJsonObject {
                     put("t", "auth")
