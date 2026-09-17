@@ -123,6 +123,7 @@ class LpmClient @Inject constructor() {
      */
     fun connect() {
         if (_state.value == ConnectionState.CONNECTING || _state.value == ConnectionState.CONNECTED) return
+        reconnectAttempt = 0
         _state.value = ConnectionState.CONNECTING
         scope.launch { connectInternal() }
     }
