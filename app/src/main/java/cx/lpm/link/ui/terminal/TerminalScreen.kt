@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cx.lpm.link.network.ConnectionState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
@@ -188,6 +189,44 @@ fun TerminalScreen(
                 .background(Color(0xFF2B2B2B)) // Match xterm dark background
         ) {
             Spacer(modifier = Modifier.height(padding.calculateTopPadding()))
+
+            // Connection banner: the screen otherwise gives no sign the socket
+            // died mid-session — input still appears to submit locally while
+            // nothing reaches the server and no output ever comes back.
+            if (uiState.connectionState != ConnectionState.CONNECTED) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(14.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = when (uiState.connectionState) {
+                                ConnectionState.DISCONNECTED -> "Disconnected — commands won't reach the Mac"
+                                ConnectionState.CONNECTING -> "Connecting…"
+                                ConnectionState.AUTHENTICATING -> "Authenticating…"
+                                ConnectionState.RECONNECTING -> "Reconnecting — commands won't reach the Mac"
+                                ConnectionState.CONNECTED -> ""
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                    }
+                }
+            }
 
             // "Take Control" Banner if another device owns the terminal
             if (!uiState.isOwner && uiState.owner != null) {

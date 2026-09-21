@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cx.lpm.link.model.ControlOwner
+import cx.lpm.link.network.ConnectionState
 import cx.lpm.link.network.LpmClient
 import cx.lpm.link.network.MessageRouter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,6 +39,7 @@ data class TerminalUiState(
     val owner: ControlOwner? = null,
     val isOwner: Boolean = true,
     val isReady: Boolean = false,
+    val connectionState: ConnectionState = ConnectionState.DISCONNECTED,
 )
 
 @HiltViewModel
@@ -77,6 +79,11 @@ class TerminalViewModel @Inject constructor(
 
     init {
         Log.d(TAG, "Initializing ViewModel: project=$projectName, terminalId=$terminalId")
+        viewModelScope.launch {
+            client.state.collect { state ->
+                _uiState.value = _uiState.value.copy(connectionState = state)
+            }
+        }
         viewModelScope.launch {
             router.terminalEvents.collect { msg ->
                 val type = msg["t"]?.jsonPrimitive?.content

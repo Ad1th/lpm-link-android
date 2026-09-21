@@ -64,6 +64,12 @@ class LpmClient @Inject constructor() {
         private const val PONG_DEADLINE_MS = 60_000L
         private const val MAX_BACKOFF_MS = 20_000.0
         private const val MAX_OFFLINE_QUEUE = 32
+        // If the server never answers `auth` with `ready`/`paired`, the socket is
+        // open but dead: sends succeed locally (queued/written) while nothing ever
+        // comes back, so the UI has no signal anything is wrong. Without this, that
+        // state persists until something else (app restart, network change) forces
+        // a new attempt.
+        private const val AUTH_TIMEOUT_MS = 10_000L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -273,6 +279,7 @@ class LpmClient @Inject constructor() {
                     put("token", tok)
                 }.toString()
                 webSocket.send(authMsg)
+                watchAuthTimeout(webSocket)
             }
 
             startHeartbeat()
@@ -349,6 +356,20 @@ class LpmClient @Inject constructor() {
 
     private fun startHeartbeat() {
         // Monitored passively without sending unhandled text ping frames
+    }
+
+    /** Force a fresh attempt if `webSocket` never leaves AUTHENTICATING (server never answered `auth`). */
+    private fun watchAuthTimeout(webSocket: WebSocket) {
+        scope.launch {
+            delay(AUTH_TIMEOUT_MS)
+            if (this@LpmClient.webSocket === webSocket && _state.value == ConnectionState.AUTHENTICATING) {
+                Log.w(TAG, "Auth timed out after ${AUTH_TIMEOUT_MS}ms; forcing reconnect")
+                webSocket.cancel()
+                this@LpmClient.webSocket = null
+                pendingSocket = null
+                scheduleReconnect()
+            }
+        }
     }
 
     private fun scheduleReconnect() {
